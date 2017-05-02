@@ -1,5 +1,4 @@
 # coding: utf-8
-# test font size
 
 # crawlerClass.py
 
@@ -22,9 +21,7 @@ class Crawler:
             raise Exception
 
     def __del__(self):
-        # print self.__dict__
         # print self
-        # print self.session
         try:
             self.session.close()
         except AttributeError:
@@ -34,6 +31,7 @@ class Crawler:
         self.session.commit()
 
     def createindextables(self):
+        # establish the database schema
         # self means it is instance method, not class method or static method
         Base = declarative_base()
 
@@ -49,6 +47,7 @@ class Crawler:
             content = Column(String(20000))
 
         self.table['urllist'] = Urllist
+        # print 2
 
         class Wordlist(Base):
             __tablename__ = 'wordlist'
@@ -59,36 +58,39 @@ class Crawler:
 
         class Wordlocation(Base):
             __tablename__ = 'wordlocation'
-            wordid = Column(Integer, ForeignKey(word.id), nullable=False)
-            urlid = Column(Integer, ForeignKey(url.id), nullable=False)
+
+            wordid = Column(Integer, ForeignKey('wordlist.id'))
+            word = relationship(Wordlist)
+            urlid = Column(Integer, ForeignKey('urllist.id'), nullable=False)
+            url = relationship(Urllist)
+
             location = Column(Integer)
             id = Column(Integer, primary_key=True)
-
-        word = relationship(Wordlist)
-        url = relationship(Urllist)
 
         self.table['wordlocation'] = Wordlocation
 
         class Link(Base):
             __tablename__ = 'link'
-            fromid = Column(Integer, ForeignKey(urlfrom.id), nullable=False)
-            toid = Column(Integer, ForeignKey(urlto.id), nullable=False)
+            fromid = Column(Integer, ForeignKey('urllist.id'), nullable=False)
+            urlfrom = relationship(Urllist)
+            toid = Column(Integer, ForeignKey('urllist.id'), nullable=False)
+            urlto = relationship(Urllist)
             id = Column(Integer, primary_key=True)
-
-        urlfrom = relationship(Urllist)
-        urlto = relationship(Urllist)
 
         self.table['link'] = Link
 
         class Linkword(Base):
-            __tablename = 'linkword'
-            linkid = Column(Integer, ForeignKey(link.id), nullable=False)
-            wordid = Column(Integer, ForeignKey(wordlist.id), nullable=False)
+            __tablename__ = 'linkword'
+
+            linkid = Column(Integer, ForeignKey('link.id'), nullable=False)
+            link = relationship(Link)
+            wordid = Column(Integer, ForeignKey('wordlist.id'), nullable=False)
+            word = relationship(Wordlist)
             id = Column(Integer, primary_key=True)
 
-        link = relationship(Link)
-        wordlist = relationship(Wordlist)
-
         self.table['linkword'] = Linkword
+        # print 3
 
+        # print self.engine
         Base.metadata.create_all(self.engine)
+        # print 4

@@ -6,24 +6,26 @@ class TestCrawler(TestCase):
     def test_init_del(self):
         c = 'newsdb'
         try:
-            a = Crawler(c)
-            # print a.session
+            Crawler(c)
         except AttributeError:
             # except ValueError:
-            self.fail('Crawler init raised Exception unexpectedly')
+            self.fail('Crawler init or del raised Exception unexpectedly')
 
-    def test_init_noOrWrongName(self):
-        # Crawler()
+    def test_init_del_noName(self):
         self.assertRaises(Exception, Crawler, )
-        # self.failUnlessRaises(Exception, Crawler, )
-        #
         # self.assertRaises(AttributeError, Crawler().__del__, )
-        # self.failUnlessRaises(AttributeError, Crawler, )
-        # self.assertRaises(Exception, Crawler, 1)
 
     def test_dbcommit(self):
-        c = 'newsdb'
         try:
-            Crawler(c).dbcommit()
-        except ValueError:
-            self.fail('Crawler commit raised Exception unexpectedly')
+            Crawler('newsdb').dbcommit()
+        except:
+            self.fail('Crawler database commit raised Exception unexpectedly')
+
+    def test_createindextables(self):
+        a = Crawler('newsdb')
+        a.createindextables()
+        # print a.__dict__
+        results = a.session.execute(
+            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA = 'newsdb'")
+        self.assertEqual([i[2] for i in results], ['link', 'linkword', 'urllist', 'wordlist', 'wordlocation'])
+        # fetchone() is similar to next() of an iterator
