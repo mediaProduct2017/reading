@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# crawlerClass.py
+# create_tables.py
 
 import mysql.connector
 from sqlalchemy import create_engine
@@ -9,7 +9,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 
-class Crawler:
+class TableCreator:
     def __init__(self, dbname):
         try:
             self.table = dict()
@@ -25,7 +25,7 @@ class Crawler:
         try:
             self.session.close()
         except AttributeError:
-            print "Crawler instance has no attribute 'session'"
+            print "Wrong in __del__: the instance has no attribute 'session'"
 
     def dbcommit(self):
         self.session.commit()

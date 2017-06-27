@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 from create_tables import TableCreator
 
 
@@ -24,8 +24,13 @@ class TestTableCreator(TestCase):
     def test_createindextables(self):
         a = TableCreator('newsdb')
         a.createindextables()
+        # a.dbcommit()
         # print a.__dict__
         results = a.session.execute(
             "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA = 'newsdb'")
         self.assertEqual([i[2] for i in results], ['link', 'linkword', 'urllist', 'wordlist', 'wordlocation'])
+        # results.fetchall() is also doable
         # fetchone() is similar to next() of an iterator
+
+if __name__ == '__main__':
+    main()
