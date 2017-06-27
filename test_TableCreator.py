@@ -1,28 +1,28 @@
 from unittest import TestCase
-from crawl import Crawler
+from create_tables import TableCreator
 
 
-class TestCrawler(TestCase):
+class TestTableCreator(TestCase):
     def test_init_del(self):
         c = 'newsdb'
         try:
-            Crawler(c)
+            TableCreator(c)
         except AttributeError:
             # except ValueError:
             self.fail('Crawler init or del raised Exception unexpectedly')
 
     def test_init_del_noName(self):
-        self.assertRaises(Exception, Crawler, )
+        self.assertRaises(Exception, TableCreator, )
         # self.assertRaises(AttributeError, Crawler().__del__, )
 
     def test_dbcommit(self):
         try:
-            Crawler('newsdb').dbcommit()
+            TableCreator('newsdb').dbcommit()
         except:
             self.fail('Crawler database commit raised Exception unexpectedly')
 
     def test_createindextables(self):
-        a = Crawler('newsdb')
+        a = TableCreator('newsdb')
         a.createindextables()
         # print a.__dict__
         results = a.session.execute(
