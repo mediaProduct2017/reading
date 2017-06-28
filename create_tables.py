@@ -2,18 +2,23 @@
 
 # create_tables.py
 
+import os
 import mysql.connector
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
+import db_info
 
 class TableCreator:
     def __init__(self, dbname):
+        user = os.environ["MYSQL_USERNAME"]
+        password = os.environ["MYSQL_PASSWORD"]
+        host = 'reading.cjnyfwqsuidc.us-west-1.rds.amazonaws.com'
+        self.table = dict()
         try:
-            self.table = dict()
-            self.engine = create_engine('mysql+mysqlconnector://new_user:new_password@localhost:3306/%s' % dbname,
+            self.engine = create_engine('mysql+mysqlconnector://%s:%s@%s:3306/%s' % (user, password, host, dbname),
                                         echo=False)
             DBSession = sessionmaker(bind=self.engine)
             self.session = DBSession()

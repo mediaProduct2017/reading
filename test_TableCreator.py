@@ -25,6 +25,8 @@ class TestTableCreator(TestCase):
         a = TableCreator('newsdb')
         a.createindextables()
         # a.dbcommit()
+        # when creating tables, sqlalchemy commits automatically
+        # If the tables already exist, nothing happens, raise no exceptions
         # print a.__dict__
         results = a.session.execute(
             "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA = 'newsdb'")
