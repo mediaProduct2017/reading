@@ -6,7 +6,7 @@ import os
 import mysql.connector
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 
 import db_info
@@ -44,10 +44,11 @@ class TableCreator:
         class Urllist(Base):
             __tablename__ = 'urllist'
 
-            id = Column(Integer, primary_key=True, autoincrement=True)
+            id = Column(BigInteger, primary_key=True, autoincrement=False)
             # for primary_key, unique=True and nullable=False are implicated
             # for primary_key, autoincrement=True by default
             # If no other index, clustered index is created automatically for primary key
+            # using hash(title) as id can avoid repetitive articles
 
             url = Column(String(256), nullable=False)
             # maximum of 256 characters, varchar(256)
@@ -71,7 +72,7 @@ class TableCreator:
 
             wordid = Column(Integer, ForeignKey('wordlist.id'))
             word = relationship(Wordlist)
-            urlid = Column(Integer, ForeignKey('urllist.id'), nullable=False)
+            urlid = Column(BigInteger, ForeignKey('urllist.id'), nullable=False)
             url = relationship(Urllist)
 
             location = Column(Integer)
@@ -81,9 +82,9 @@ class TableCreator:
 
         class Link(Base):
             __tablename__ = 'link'
-            fromid = Column(Integer, ForeignKey('urllist.id'), nullable=False)
+            fromid = Column(BigInteger, ForeignKey('urllist.id'), nullable=False)
             urlfrom = relationship(Urllist)
-            toid = Column(Integer, ForeignKey('urllist.id'), nullable=False)
+            toid = Column(BigInteger, ForeignKey('urllist.id'), nullable=False)
             urlto = relationship(Urllist)
             id = Column(Integer, primary_key=True)
 
