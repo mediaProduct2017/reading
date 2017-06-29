@@ -1,7 +1,8 @@
+#!/usr/bin/env python2
 # coding=utf-8
 
 import Queue
-import threading
+import threading  # used to populate items
 
 import scrapy
 from scrapy.contrib.linkextractors import LinkExtractor
@@ -38,6 +39,16 @@ class NewsSpider(scrapy.Spider):
         item['url'] = response.url
         return item
 
+    def wrapper_target_func(self, f, q, items):
+        # populating items
+        for _ in range(q.qsize()):
+            tp_url = q.get(timeout=3)  # 3s timeout
+            items.append(self.make_requests_from_url(tp_url))
+            items.append(self.make_requests_from_url(tp_url).
+                         replace(callback=self.parse_page))
+        q.task_done()
+        return
+
     def parse(self, response):
         # set the allowed domains in link
         ln_extractor = LinkExtractor(allow_domains="news.sina.cn",
@@ -54,12 +65,10 @@ class NewsSpider(scrapy.Spider):
                 self.g_queue_urls.put(i.url)
                 self.g_container_urls.add(i.url)
         # make all the requests in the queue
-        self.lock.acquire()
-        # NewsSpider.lock.acquire()
-        for _ in range(self.g_queue_urls.qsize()):
-            tp_url = self.g_queue_urls.get()
-            items.append(self.make_requests_from_url(tp_url))
-            items.append(self.make_requests_from_url(tp_url).
-                         replace(callback=self.parse_page))
-        self.lock.release()
+        # to populate items
+        for _ in range(20):
+            threading.Thread(target=self.wrapper_target_func,
+                             args=(self.g_queue_urls, items)).start()
+        self.g_queue_urls.join()
+        # the main thread is blocked until the queue is empty
         return items
