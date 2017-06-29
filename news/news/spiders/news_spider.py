@@ -13,7 +13,7 @@ class NewsSpider(scrapy.Spider):
     # BFS queue
     g_queue_urls = Queue.Queue(100000)
     g_container_urls = {""}  # empty set
-    lock = threading.Lock()
+    # lock = threading.Lock() # lock is not directly used
 
     name = "news"
     allowed_domains = ["sina.cn"]
@@ -39,7 +39,7 @@ class NewsSpider(scrapy.Spider):
         item['url'] = response.url
         return item
 
-    def wrapper_target_func(self, f, q, items):
+    def wrapper_target_func(self, q, items):
         # populating items
         for _ in range(q.qsize()):
             tp_url = q.get(timeout=3)  # 3s timeout
@@ -66,7 +66,7 @@ class NewsSpider(scrapy.Spider):
                 self.g_container_urls.add(i.url)
         # make all the requests in the queue
         # to populate items
-        for _ in range(20):
+        for _ in range(20):  # 20 threads
             threading.Thread(target=self.wrapper_target_func,
                              args=(self.g_queue_urls, items)).start()
         self.g_queue_urls.join()
