@@ -6,10 +6,11 @@ import os
 import mysql.connector
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 
 import db_info
+
 
 class TableCreator:
     def __init__(self, dbname):
@@ -44,12 +45,16 @@ class TableCreator:
             __tablename__ = 'urllist'
 
             id = Column(Integer, primary_key=True, autoincrement=True)
-            # autoincrement=True by default
+            # for primary_key, unique=True and nullable=False are implicated
+            # for primary_key, autoincrement=True by default
+            # If no other index, clustered index is created automatically for primary key
 
-            url = Column(String(80), nullable=False)
-            # maximum of 80 characters
-            title = Column(String(80))
-            content = Column(String(20000))
+            url = Column(String(256), nullable=False)
+            # maximum of 256 characters, varchar(256)
+            title = Column(String(256))
+            # String(80)
+            content = Column(Text)
+            # varchar(10240), varchar(20000)
 
         self.table['urllist'] = Urllist
         # print 2
