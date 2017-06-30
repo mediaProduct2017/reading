@@ -2,7 +2,8 @@
 # coding=utf-8
 
 import Queue
-import threading  # used to populate items
+import threading  # used to populate items which are returned by parse
+# Deal with the parsing tasks from a navigation page by multithreads
 
 import scrapy
 from scrapy.contrib.linkextractors import LinkExtractor
@@ -40,12 +41,17 @@ class NewsSpider(scrapy.Spider):
         return item
 
     def wrapper_target_func(self, q, items):
-        # populating items
+        # populating items which are returned by parse
+        # Deal with the parsing tasks from a navigation page by multithreads
         for _ in range(q.qsize()):
+            # In a queue, there are many urls from a navigation page
             tp_url = q.get(timeout=3)  # 3s timeout
-            items.append(self.make_requests_from_url(tp_url))
             items.append(self.make_requests_from_url(tp_url).
                          replace(callback=self.parse_page))
+            # first get the parsing results, parse the content of url
+            # in the thread, parse_page is called and item instances are filled
+            items.append(self.make_requests_from_url(tp_url))
+            # then append the requests, send the url for more urls to parse
         q.task_done()
         return
 
