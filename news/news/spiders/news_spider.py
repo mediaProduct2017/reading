@@ -28,6 +28,7 @@ class NewsSpider(scrapy.Spider):
         for i in title_arr:
             title += i
         content_arr = response.xpath("//div/text()").extract()
+        # //div means all the div blocks in the document
         content = ""
         for i in content_arr:
             if len(i) > 50:
