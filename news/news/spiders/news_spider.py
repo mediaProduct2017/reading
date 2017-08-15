@@ -43,7 +43,7 @@ class NewsSpider(scrapy.Spider):
 
     def wrapper_target_func(self, q, items):
         # 本质上是一个kernal，每个thread都来执行这个kernal
-        # 这个kernal的输入内存是用q来控制的（不是用数组或列表来控制的），输出内存是用items来控制的
+        # 这个kernal的输入内存是用q来控制的（不是用数组或列表来控制的），输出内存是用items来控制的，读写是分离的，在这种情况下，parallel programming比较容易，否则的话，parallel programming barrier需要精心设置
     
         # populating items which are returned by parse
         # Deal with the parsing tasks from a navigation page by multithreads
@@ -102,4 +102,10 @@ class NewsSpider(scrapy.Spider):
         # the main thread is blocked until the queue is empty
         # 上面的parallel execution全部执行完之后，才往下执行，返回items.
         # 相当于GPU编程中的syncthreads()，是parallel programming的barrier
+        # Every kernal has a bunch of thread blocks, there could be barriers between different blocks
+        # 因为q与items输入输出相分离，所以parallel programming的结构上可以只用一个block，一个barrier位于最后
+        # 当一个page上的所有链接的具体内容都被提取之后，才进入下一个page（其实就是第一个链接）获取新的链接
+        # scrapy首先parse交给它的网页的内容，然后进入到parse函数返回的items中的网页，再调用parse，不断进行下去
+        # 对于一次parse函数的调用，可以认为，返回的有子链接的内容（第一次进入的是导航目录），还有孙链接的链接地址
+        # 因为只有一个kernal-wrapper_target_func，所以不存在不同kernal之间的implicit barrier
         return items
