@@ -93,4 +93,5 @@ class NewsSpider(scrapy.Spider):
         self.g_queue_urls.join()
         # the main thread is blocked until the queue is empty
         # 上面的parallel execution全部执行完之后，才往下执行，返回items.
+        # 相当于GPU编程中的syncthreads()，是parallel programming的barrier
         return items
