@@ -47,6 +47,14 @@ class NewsSpider(scrapy.Spider):
     
         # populating items which are returned by parse
         # Deal with the parsing tasks from a navigation page by multithreads
+        '''
+        while q.qsize()>0:
+            tp_url = q.get(timeout=3)
+            items.append(self.make_requests_from_url(tp_url).
+                         replace(callback=self.parse_page))
+            items.append(self.make_requests_from_url(tp_url)) 
+        # 这里的while循环才是对的，下面的for循环用作kernal是不合适的
+        '''
         for _ in range(q.qsize()):
             # 从开始执行kernal算起，执行多少次循环
             # In a queue, there are many urls from a navigation page
